@@ -1,0 +1,4 @@
+name: MoreEnchantments
+version: '${project.version}'
+main: org.moreenchantments.MoreEnchantments
+api-version: '1.20'
