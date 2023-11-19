@@ -2,10 +2,7 @@ package org.moreenchantments;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,13 +17,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.itemutils.ItemUtils;
-import org.moreenchantments.enchantments.MoneyMendingEnchantment;
 import org.moreenchantments.utils.ListUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 public class Events implements Listener {
@@ -57,42 +51,7 @@ public class Events implements Listener {
     public void PrepareAnvilEvent(PrepareAnvilEvent event){
         String eventName = new Object(){}.getClass().getEnclosingMethod().getName();
         eventPass(eventName, event);
-//        ItemStack resultBefore = event.getResult();
-//
-//        String eventName = new Object(){}.getClass().getEnclosingMethod().getName();
-//        eventPass(eventName, event);
-//
-//        ItemStack tool = event.getInventory().getItem(0);
-//        ItemStack enchBookSlot = event.getInventory().getItem(1);
-//        ItemStack resultAfter = event.getResult();
-//
-//        //except tool without custom enchantments
-//        if (ItemUtils.itemGetNbtPath(tool, "CustomEnchantments") == null){
-//            return;
-//        }
-//
-//        //except not enchant anvil recipes
-//        if (!enchBookSlot.getType().equals(Material.ENCHANTED_BOOK)){
-//            return;
-//        }
-//
-//        //except non-vanilla enchantmentBooks
-//        if (!enchBookSlot.getEnchantments().isEmpty()){
-//            return;
-//        }
-//
-//        //except invalid anvil recipes
-//        if (resultAfter.getType().equals(Material.AIR)){
-//            return;
-//        }
-//
-//        //remove virtual enchantment effect
-//        if (resultAfter.getEnchantments().get(Enchantment.OXYGEN) == 0){
-//            resultAfter.removeEnchantment(Enchantment.OXYGEN);
-//        }
-//        ItemMeta resultMeta = resultAfter.getItemMeta();
-//        resultMeta.removeItemFlags();
-//        resultAfter.setItemMeta(resultMeta);
+
         ItemStack aSlot = event.getInventory().getItem(0);
         ItemStack bSlot = event.getInventory().getItem(1);
         if (aSlot == null || bSlot == null){
@@ -127,41 +86,6 @@ public class Events implements Listener {
 
         customEnchantments = ListUtils.removeDuplicates(customEnchantments);
 
-        boolean enchantmentCompatible = true;
-        try{
-            for (Object i : customEnchantments) {
-                Enchantment[] notCompatibleVanilla = ((Enchantment[]) (main.getFieldFromInstance("notCompatibleVanilla", main.constructedEnchantments.get((String) i))));
-                for (Enchantment ii : notCompatibleVanilla) {
-                    boolean containEnchantedBook = false;
-                    if (bSlot.getType().equals(Material.ENCHANTED_BOOK)){
-                        containEnchantedBook = ((EnchantmentStorageMeta)(bSlot.getItemMeta())).hasStoredEnchant(ii);
-                    }
-                    else {
-                        containEnchantedBook = bSlot.containsEnchantment(ii);
-                    }
-
-                    if (containEnchantedBook) {
-                        enchantmentCompatible = false;
-                        break;
-                    }
-                }
-
-                String[] notCompatibleCustom = ((String[]) (main.getFieldFromInstance("notCompatibleCustom", main.constructedEnchantments.get((String) i))));
-                for (String ii : notCompatibleCustom) {
-                    if (bCustomEnchantments.contains(ii)) {
-                        enchantmentCompatible = false;
-                        break;
-                    }
-                }
-            }
-        }
-        catch (Exception ignored){}
-
-        if (!enchantmentCompatible){
-            event.setResult(new ItemStack(Material.AIR));
-            return;
-        }
-
         if (result.getType().equals(Material.AIR)){
             result = aSlot.clone();
         }
@@ -182,28 +106,10 @@ public class Events implements Listener {
 
         int highestRespiration = Math.max(aRL,bRL);
 
-//        if (aCustomEnchantments == null){
-//            aCustomEnchantments = new ArrayList<>();
-//        }
-//
 
-        if (main.hasVanillaEnchantment(result)){
+        if (main.hasVanillaEnchantments(result)){
             main.removeVirtualEnchantment(result);
         }
-//        if (customEnchantments == null){
-//            return;
-//        }
-//
-//        ArrayList newEnchantments = (ArrayList) customEnchantments.clone();
-//
-//        for (Object i : aCustomEnchantments){
-////                if (((String) i).equals((String) ii)){
-////                    newEnchantments.remove(ii);
-////                }
-//            newEnchantments.remove(i);
-//        }
-//
-//        System.out.println(newEnchantments);
 
         List<String> lores = new ArrayList<>();
         for (Object i : customEnchantments){
@@ -218,13 +124,46 @@ public class Events implements Listener {
 
         result.setItemMeta(rItemMeta);
 
-        if (!main.hasVanillaEnchantment(result)){
+        if (!main.hasVanillaEnchantments(result)){
             main.addVirtualEnchantment(result);
         }
 
         event.setResult(result);
 
+        boolean enchantmentCompatible = true;
+        try{
+            for (Object i : customEnchantments) {
+                Enchantment[] notCompatibleVanilla = ((Enchantment[]) (main.getFieldFromInstance("notCompatibleVanilla", main.constructedEnchantments.get((String) i))));
+                for (Enchantment ii : notCompatibleVanilla) {
+                    boolean containEnchantedBook = false;
+                    if (main.isEnchantmentBook(result)){
+                        containEnchantedBook = main.enchantmentBookContains(result, ii);
+                    }
+                    else {
+                        containEnchantedBook = result.containsEnchantment(ii);
+                    }
 
+                    if (containEnchantedBook) {
+                        enchantmentCompatible = false;
+                        break;
+                    }
+                }
+
+                String[] notCompatibleCustom = ((String[]) (main.getFieldFromInstance("notCompatibleCustom", main.constructedEnchantments.get((String) i))));
+                for (String ii : notCompatibleCustom) {
+                    if (customEnchantments.contains(ii)) {
+                        enchantmentCompatible = false;
+                        break;
+                    }
+                }
+            }
+        }
+        catch (Exception ignored){}
+
+        if (!enchantmentCompatible){
+            event.setResult(new ItemStack(Material.AIR));
+            return;
+        }
 
     }
 
@@ -249,11 +188,6 @@ public class Events implements Listener {
         if (event.getCurrentItem().getType().equals(Material.AIR)){
             return;
         }
-//
-//        ItemStack enchSlot = inventory.getItem(1);
-//        if (!(main.hasEnchantment(enchSlot, MoneyMendingEnchantment.class) && main.isEnchantmentBook(enchSlot))){
-//            return;
-//        }
 
         if (event.isShiftClick()){
             player.getInventory().addItem(event.getCurrentItem());

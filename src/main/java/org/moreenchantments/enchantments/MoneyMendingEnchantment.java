@@ -54,9 +54,17 @@ public class MoneyMendingEnchantment {
 
         Damageable damagedEquipment = (Damageable) equipment.getItemMeta();
         BigDecimal damage = BigDecimal.valueOf(damagedEquipment.getDamage()+event.getDamage());
+        double costPerDurability = 1.0;
+        try{
+            costPerDurability = (Double)(main.config.get("costPerDurability"));
+        }
+        catch (Exception ignored){
+            costPerDurability = (Integer)(main.config.get("costPerDurability"));
+        }
+        BigDecimal cost = damage.multiply(BigDecimal.valueOf(costPerDurability));
 
         BigDecimal playerBalance = essPlayer.getMoney();
-        if (playerBalance.compareTo(damage) < 0){
+        if (playerBalance.compareTo(cost) < 0){
             return;
         }
 
@@ -65,7 +73,7 @@ public class MoneyMendingEnchantment {
         player.getEquipment().setItemInMainHand(equipment);
 
         try{
-            essPlayer.setMoney(playerBalance.subtract(damage));
+            essPlayer.setMoney(playerBalance.subtract(cost));
         }
         catch (Exception ignored){}
     }
@@ -78,30 +86,33 @@ public class MoneyMendingEnchantment {
         WanderingTrader wanderingLeash = ((WanderingTrader)(event.getEntity()));
 
         MerchantRecipe merchant = new MerchantRecipe(MoneyMendingBook.item(),1);
+        merchant.addIngredient(new ItemStack(Material.EMERALD, (int) (27+Math.round(Math.random()*10))));
         merchant.addIngredient(new ItemStack(Material.BOOK,1));
-        merchant.addIngredient(new ItemStack(Material.EMERALD_BLOCK, (int) (27+Math.round(Math.random()*10))));
 
         wanderingLeash.setRecipe(wanderingLeash.getRecipes().size()-1,merchant);
     }
 
     public void PrepareAnvilEvent(PrepareAnvilEvent event){
-        System.out.println(event.getInventory().getItem(0));
+//        System.out.println(event.getInventory().getItem(0));
         if (event.getInventory().getItem(0) == null){
             return;
         }
         if (event.getInventory().getItem(1) != null){
             return;
         }
-        if (event.getInventory().getItem(0).equals(Material.ENCHANTED_BOOK))
-        if (!(((EnchantmentStorageMeta)(event.getInventory().getItem(0).getItemMeta())).hasStoredEnchant(Enchantment.MENDING))){
+        if (!main.isEnchantmentBook(event.getInventory().getItem(0))){
             return;
         }
-//        event.setResult(event.getInventory().getItem(0));
+
+        if (!main.enchantmentBookContains(event.getInventory().getItem(0), Enchantment.MENDING)){
+            return;
+        }
+
         event.setResult(MoneyMendingBook.item());
         event.getInventory().setRepairCost(301);
         event.getInventory().setMaximumRepairCost(300);
         ItemMeta itemMeta = event.getResult().getItemMeta();
-        itemMeta.setDisplayName("\u00a7e[\u00a7fClick\u00a7e] \u00a7cBuy the book with price 500$!");
+        itemMeta.setDisplayName(main.languageMapping.get("moreenchantments:money_mending.anvil.get"));
         event.getResult().setItemMeta(itemMeta);
         ItemStack result = ItemUtils.itemSetNbtPath(event.getResult(), "money_mending_trade", true);
         event.setResult(result);
@@ -121,7 +132,7 @@ public class MoneyMendingEnchantment {
         ItemStack returnItem;
         if (essPlayer.getMoney().compareTo(BigDecimal.valueOf(500))>=0){
             returnItem = MoneyMendingBook.item();
-            player.sendMessage("\u00a7f[\u00a7aMoreEnchantments\u00a7f] \u00a7eYou buy a MoneyMending enchanted book with \u00a7c500\u00a7f$");
+            player.sendMessage(main.messagePrefix+main.languageMapping.get("moreenchantments:money_mending.anvil.got"));
             player.getLocation().getWorld().playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
             try{
                 essPlayer.setMoney(essPlayer.getMoney().subtract(BigDecimal.valueOf(500)));
@@ -132,7 +143,7 @@ public class MoneyMendingEnchantment {
         }
         else{
             returnItem = event.getInventory().getItem(0);
-            player.sendMessage("\u00a7f[\u00a7aMoreEnchantments\u00a7f] \u00a7eYour money does not enough to buy it.");
+            player.sendMessage(main.messagePrefix+main.languageMapping.get("moreenchantments.money_not_enough"));
             player.getLocation().getWorld().playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1, 0);
         }
 
