@@ -1,5 +1,6 @@
 # MoreEnchantments
 a plugin add more enchantments to minecraft
+required plugins : [ItemUtils](https://github.com/mcg25035/ItemUtils)
 
 Current enchantments:
 > 1. Money Mending
