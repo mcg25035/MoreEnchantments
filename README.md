@@ -1,5 +1,5 @@
 # MoreEnchantments
-a plugin add more enchantments to minecraft
+a plugin add more enchantments to minecraft\n
 required plugins : [ItemUtils](https://github.com/mcg25035/ItemUtils)
 
 Current enchantments:
