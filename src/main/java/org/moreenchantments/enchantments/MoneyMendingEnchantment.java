@@ -68,12 +68,28 @@ public class MoneyMendingEnchantment {
             return;
         }
 
+        int rawItemSlot = -1;
+
+        for (int i=0;i<player.getInventory().getSize();i++){
+            if (player.getInventory().getItem(i) == null){
+                continue;
+            }
+            if (!player.getInventory().getItem(i).equals(equipment)){
+                continue;
+            }
+            rawItemSlot = i;
+        }
+
         damagedEquipment.setDamage(0);
         equipment.setItemMeta(damagedEquipment);
-        player.getEquipment().setItemInMainHand(equipment);
+
+        if (rawItemSlot == -1){
+            return;
+        }
 
         try{
             essPlayer.setMoney(playerBalance.subtract(cost));
+            player.getInventory().setItem(rawItemSlot, equipment);
         }
         catch (Exception ignored){}
     }

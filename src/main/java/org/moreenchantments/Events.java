@@ -86,6 +86,9 @@ public class Events implements Listener {
 
         customEnchantments = ListUtils.removeDuplicates(customEnchantments);
 
+        if (result == null){
+            result = aSlot.clone();
+        }
         if (result.getType().equals(Material.AIR)){
             result = aSlot.clone();
         }
@@ -95,12 +98,18 @@ public class Events implements Listener {
         int aRL = 0;
         int bRL = 0;
 
-        if (aSlot.containsEnchantment(Enchantment.OXYGEN)){
+        if ((!main.isEnchantmentBook(aSlot)) && aSlot.containsEnchantment(Enchantment.OXYGEN)){
             aRL = aSlot.getEnchantments().get(Enchantment.OXYGEN);
         }
+        if (main.isEnchantmentBook(aSlot) && main.enchantmentBookContains(aSlot, Enchantment.OXYGEN)){
+            aRL = ((EnchantmentStorageMeta)(aSlot.getItemMeta())).getStoredEnchantLevel(Enchantment.OXYGEN);
+        }
 
-        if (bSlot.containsEnchantment(Enchantment.OXYGEN)){
-            bRL = aSlot.getEnchantments().get(Enchantment.OXYGEN);
+        if ((!main.isEnchantmentBook(bSlot)) && bSlot.containsEnchantment(Enchantment.OXYGEN)){
+            bRL = bSlot.getEnchantments().get(Enchantment.OXYGEN);
+        }
+        if (main.isEnchantmentBook(bSlot) && main.enchantmentBookContains(bSlot, Enchantment.OXYGEN)){
+            bRL = ((EnchantmentStorageMeta)(bSlot.getItemMeta())).getStoredEnchantLevel(Enchantment.OXYGEN);
         }
 
 
