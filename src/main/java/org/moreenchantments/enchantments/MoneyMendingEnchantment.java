@@ -8,9 +8,13 @@ import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.meta.Damageable;
@@ -23,6 +27,7 @@ import org.moreenchantments.books.MoneyMendingBook;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.List;
 import java.util.Map;
 
@@ -165,6 +170,44 @@ public class MoneyMendingEnchantment {
 
         player.setItemOnCursor(returnItem);
         event.getInventory().clear();
+
+    }
+
+    public void InventoryInteractEvent(InventoryClickEvent event){
+        HumanEntity player = event.getWhoClicked();
+        Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+        User essPlayer = ess.getUser(player);
+        BigDecimal damage = BigDecimal.valueOf(431);
+
+        ItemStack currentItem = event.getCurrentItem();
+        if (currentItem == null) return;
+        if (!currentItem.getType().equals(Material.ELYTRA)) return;
+        if (((Damageable)(currentItem.getItemMeta())).getDamage() != 431) return;
+
+        double costPerDurability = 1.0;
+        try{
+            costPerDurability = (Double)(main.config.get("costPerDurability"));
+        }
+        catch (Exception ignored){
+            costPerDurability = (Integer)(main.config.get("costPerDurability"));
+        }
+        BigDecimal cost = damage.multiply(BigDecimal.valueOf(costPerDurability));
+
+        BigDecimal playerBalance = essPlayer.getMoney();
+        if (playerBalance.compareTo(cost) < 0){
+            return;
+        }
+
+        Damageable itemMeta = (Damageable) (currentItem.getItemMeta());
+        itemMeta.setDamage(0);
+        currentItem.setItemMeta(itemMeta);
+        event.setCurrentItem(currentItem);
+
+        try{
+            essPlayer.setMoney(playerBalance.subtract(cost));
+        }
+        catch (Exception ignored){}
+
 
     }
 }

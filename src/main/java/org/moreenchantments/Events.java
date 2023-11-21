@@ -7,9 +7,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
@@ -122,9 +120,10 @@ public class Events implements Listener {
 
         List<String> lores = new ArrayList<>();
         for (Object i : customEnchantments){
-            lores.add("\u00a77"+main.languageMapping.get((String) i));
+            lores.add("§7"+main.languageMapping.get((String) i));
         }
         ItemMeta rItemMeta = result.getItemMeta();
+        assert rItemMeta != null;
         rItemMeta.setLore(lores);
 
         if (highestRespiration == 0){
@@ -144,7 +143,7 @@ public class Events implements Listener {
             for (Object i : customEnchantments) {
                 Enchantment[] notCompatibleVanilla = ((Enchantment[]) (main.getFieldFromInstance("notCompatibleVanilla", main.constructedEnchantments.get((String) i))));
                 for (Enchantment ii : notCompatibleVanilla) {
-                    boolean containEnchantedBook = false;
+                    boolean containEnchantedBook;
                     if (main.isEnchantmentBook(result)){
                         containEnchantedBook = main.enchantmentBookContains(result, ii);
                     }
@@ -171,13 +170,31 @@ public class Events implements Listener {
 
         if (!enchantmentCompatible){
             event.setResult(new ItemStack(Material.AIR));
-            return;
         }
 
     }
 
     @EventHandler
     public void InventoryClickEvent(InventoryClickEvent event){
+        if (event.getClickedInventory() == null){
+            return;
+        }
+
+        if (event.getCurrentItem() == null){
+            return;
+        }
+
+        if (event.getClickedInventory().getType() == InventoryType.GRINDSTONE && event.getSlotType() == InventoryType.SlotType.RESULT){
+            if (ItemUtils.itemGetNbtPath(event.getCurrentItem(), "CustomEnchantments") != null){
+                ItemStack result = ItemUtils.itemSetNbtPath(event.getCurrentItem(), "CustomEnchantments", new ArrayList<>());
+                ItemMeta resultMeta = result.getItemMeta();
+                assert resultMeta != null;
+                resultMeta.setLore(new ArrayList<>());
+                result.setItemMeta(resultMeta);
+                main.removeVirtualEnchantment(result);
+                event.setCurrentItem(result);
+            }
+        }
         String eventName = new Object(){}.getClass().getEnclosingMethod().getName();
         eventPass(eventName, event);
 
@@ -207,6 +224,14 @@ public class Events implements Listener {
 
         inventory.clear();
         Location inventoryLocation = inventory.getLocation();
+        assert inventoryLocation != null;
         inventoryLocation.getWorld().playSound(inventoryLocation, Sound.BLOCK_ANVIL_USE, (float) 1, (float) (1.035-Math.random()*0.15));
+    }
+
+    @EventHandler
+    public void InventoryInteractEvent(InventoryClickEvent event){
+        String eventName = new Object(){}.getClass().getEnclosingMethod().getName();
+        eventPass(eventName, event);
+
     }
 }
