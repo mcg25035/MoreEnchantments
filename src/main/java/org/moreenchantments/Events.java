@@ -4,6 +4,8 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
@@ -195,6 +197,7 @@ public class Events implements Listener {
                 event.setCurrentItem(result);
             }
         }
+
         String eventName = new Object(){}.getClass().getEnclosingMethod().getName();
         eventPass(eventName, event);
 
@@ -204,15 +207,28 @@ public class Events implements Listener {
             return;
         }
 
-        if (((AnvilInventory) inventory).getRepairCost() > player.getExpToLevel()){
+
+
+        if (((AnvilInventory) inventory).getRepairCost() > ((Player)player).getLevel()){
             return;
         }
         if (!event.getSlotType().equals(InventoryType.SlotType.RESULT)){
             return;
         }
 
+        if (!event.getWhoClicked().getItemOnCursor().getType().equals(Material.AIR)){
+            event.setResult(Event.Result.DENY);
+            return;
+        }
+
         if (event.getCurrentItem().getType().equals(Material.AIR)){
             return;
+        }
+
+        if (inventory.getItem(1) != null){
+            if (inventory.getItem(1).getAmount() > 1){
+                return;
+            }
         }
 
         if (event.isShiftClick()){
@@ -221,8 +237,8 @@ public class Events implements Listener {
         else{
             player.setItemOnCursor(event.getCurrentItem());
         }
-
         inventory.clear();
+
         Location inventoryLocation = inventory.getLocation();
         assert inventoryLocation != null;
         inventoryLocation.getWorld().playSound(inventoryLocation, Sound.BLOCK_ANVIL_USE, (float) 1, (float) (1.035-Math.random()*0.15));

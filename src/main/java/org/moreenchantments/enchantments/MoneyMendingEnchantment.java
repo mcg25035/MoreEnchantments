@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
+import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -114,7 +115,6 @@ public class MoneyMendingEnchantment {
     }
 
     public void PrepareAnvilEvent(PrepareAnvilEvent event){
-//        System.out.println(event.getInventory().getItem(0));
         if (event.getInventory().getItem(0) == null){
             return;
         }
@@ -140,6 +140,18 @@ public class MoneyMendingEnchantment {
     }
 
     public void InventoryClickEvent(InventoryClickEvent event){
+        if (!event.getSlotType().equals(InventoryType.SlotType.RESULT)){
+            return;
+        }
+
+        if (!event.getInventory().getType().equals(InventoryType.ANVIL)){
+            return;
+        }
+
+        if (!event.getWhoClicked().getItemOnCursor().getType().equals(Material.AIR)){
+            event.setResult(Event.Result.DENY);
+            return;
+        }
         ItemStack currentItem = event.getCurrentItem();
         HumanEntity player = event.getWhoClicked();
 
@@ -167,9 +179,10 @@ public class MoneyMendingEnchantment {
             player.sendMessage(main.messagePrefix+main.languageMapping.get("moreenchantments.money_not_enough"));
             player.getLocation().getWorld().playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1, 0);
         }
-
-        player.setItemOnCursor(returnItem);
         event.getInventory().clear();
+        player.getInventory().addItem(returnItem);
+        event.setCurrentItem(new ItemStack(Material.AIR));
+        event.setResult(Event.Result.DENY);
 
     }
 

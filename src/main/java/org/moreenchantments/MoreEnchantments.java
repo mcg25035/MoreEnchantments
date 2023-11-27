@@ -95,6 +95,11 @@ public final class MoreEnchantments extends JavaPlugin {
     }
 
     public void removeVirtualEnchantment(ItemStack item){
+        if (item.getItemMeta().hasItemFlag(ItemFlag.HIDE_ENCHANTS)){
+            ItemMeta itemMeta = item.getItemMeta();
+            itemMeta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+            item.setItemMeta(itemMeta);
+        }
         if (item.getEnchantments().get(Enchantment.OXYGEN) == null){
             return;
         }
@@ -103,9 +108,6 @@ public final class MoreEnchantments extends JavaPlugin {
             itemMeta.removeEnchant(Enchantment.OXYGEN);
             item.setItemMeta(itemMeta);
         }
-        ItemMeta itemMeta = item.getItemMeta();
-        itemMeta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
-        item.setItemMeta(itemMeta);
     }
 
     public void addVirtualEnchantment(ItemStack item){
