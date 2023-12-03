@@ -118,9 +118,12 @@ public class MoneyMendingEnchantment {
         if (event.getInventory().getItem(0) == null){
             return;
         }
+
         if (event.getInventory().getItem(1) != null){
             return;
         }
+
+
         if (!main.isEnchantmentBook(event.getInventory().getItem(0))){
             return;
         }

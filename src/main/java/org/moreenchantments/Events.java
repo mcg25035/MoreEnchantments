@@ -54,10 +54,19 @@ public class Events implements Listener {
 
         ItemStack aSlot = event.getInventory().getItem(0);
         ItemStack bSlot = event.getInventory().getItem(1);
+
         if (aSlot == null || bSlot == null){
             return;
         }
+
+        // Start - Emergency Fix - TRIDENT_WITH_MONEYMENDING
+        if (aSlot.getType().equals(Material.TRIDENT)){
+            return;
+        }
+        // End - Emergency Fix - TRIDENT_WITH_MONEYMENDING
+
         ItemStack result = event.getResult();
+
         ArrayList aCustomEnchantments = (ArrayList) (ItemUtils.itemGetNbtPath(aSlot, "CustomEnchantments"));
         ArrayList bCustomEnchantments = (ArrayList) (ItemUtils.itemGetNbtPath(bSlot, "CustomEnchantments"));
         ArrayList customEnchantments = main.mergeCustomEnchantments(aCustomEnchantments,bCustomEnchantments);
@@ -89,6 +98,7 @@ public class Events implements Listener {
         if (result == null){
             result = aSlot.clone();
         }
+
         if (result.getType().equals(Material.AIR)){
             result = aSlot.clone();
         }
