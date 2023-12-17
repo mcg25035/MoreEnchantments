@@ -9,6 +9,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.AnvilInventory;
@@ -60,9 +61,9 @@ public class Events implements Listener {
         }
 
         // Start - Emergency Fix - TRIDENT_WITH_MONEYMENDING
-        if (aSlot.getType().equals(Material.TRIDENT)){
-            return;
-        }
+//        if (aSlot.getType().equals(Material.TRIDENT)){
+//            return;
+//        }
         // End - Emergency Fix - TRIDENT_WITH_MONEYMENDING
 
         ItemStack result = event.getResult();
@@ -147,6 +148,8 @@ public class Events implements Listener {
         if (!main.hasVanillaEnchantments(result)){
             main.addVirtualEnchantment(result);
         }
+
+        result = main.itemUpdateUUID(result);
 
         event.setResult(result);
 
@@ -259,5 +262,11 @@ public class Events implements Listener {
         String eventName = new Object(){}.getClass().getEnclosingMethod().getName();
         eventPass(eventName, event);
 
+    }
+
+    @EventHandler
+    public void ProjectileLaunchEvent(ProjectileLaunchEvent event){
+        String eventName = new Object(){}.getClass().getEnclosingMethod().getName();
+        eventPass(eventName, event);
     }
 }

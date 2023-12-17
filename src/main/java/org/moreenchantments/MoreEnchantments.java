@@ -127,6 +127,27 @@ public final class MoreEnchantments extends JavaPlugin {
         return true;
     }
 
+    public ItemStack itemUpdateUUID(ItemStack item){
+        item = ItemUtils.itemSetNbtPath(item, "UUID", UUID.randomUUID().toString());
+        return item;
+    }
+
+    public boolean itemHasUUID(ItemStack item){
+        return ItemUtils.itemGetNbtPath(item, "UUID") != null;
+    }
+
+    public boolean itemSameUUID(ItemStack itemA, ItemStack itemB){
+        String UUIDA = ((String)(ItemUtils.itemGetNbtPath(itemA, "UUID")));
+        String UUIDB = ((String)(ItemUtils.itemGetNbtPath(itemB, "UUID")));
+        if (UUIDA == null && UUIDB == null){
+            return true;
+        }
+        if (UUIDA == null || UUIDB == null){
+            return false;
+        }
+        return ItemUtils.itemGetNbtPath(itemA, "UUID").equals(ItemUtils.itemGetNbtPath(itemB, "UUID"));
+    }
+
     public ArrayList mergeCustomEnchantments(ArrayList ce1, ArrayList ce2){
         if (ce1 == null){
             ce1 = new ArrayList();

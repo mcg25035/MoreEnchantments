@@ -9,6 +9,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -42,24 +43,11 @@ public class MoneyMendingEnchantment {
     public MoneyMendingBook book = new MoneyMendingBook();
 
     public MoreEnchantments main = MoreEnchantments.getThis();
-
-    public void PlayerItemDamageEvent(PlayerItemDamageEvent event){
+    private ItemStack itemRepair(ItemStack damaged, Player player, int newDamage){
         Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
-
-        Player player = event.getPlayer();
         User essPlayer = ess.getUser(player);
-        ItemStack equipment = event.getItem();
-
-        if (ItemUtils.itemGetNbtPath(equipment,"CustomEnchantments") == null){
-            return;
-        }
-
-        if (!(((ArrayList)(ItemUtils.itemGetNbtPath(equipment,"CustomEnchantments"))).contains("moreenchantments:money_mending"))){
-            return;
-        }
-
-        Damageable damagedEquipment = (Damageable) equipment.getItemMeta();
-        BigDecimal damage = BigDecimal.valueOf(damagedEquipment.getDamage()+event.getDamage());
+        Damageable damagedEquipment = (Damageable) damaged.getItemMeta();
+        BigDecimal damage = BigDecimal.valueOf(damagedEquipment.getDamage()+newDamage);
         double costPerDurability = 1.0;
         try{
             costPerDurability = (Double)(main.config.get("costPerDurability"));
@@ -67,37 +55,63 @@ public class MoneyMendingEnchantment {
         catch (Exception ignored){
             costPerDurability = (Integer)(main.config.get("costPerDurability"));
         }
+
         BigDecimal cost = damage.multiply(BigDecimal.valueOf(costPerDurability));
 
         BigDecimal playerBalance = essPlayer.getMoney();
         if (playerBalance.compareTo(cost) < 0){
-            return;
-        }
-
-        int rawItemSlot = -1;
-
-        for (int i=0;i<player.getInventory().getSize();i++){
-            if (player.getInventory().getItem(i) == null){
-                continue;
-            }
-            if (!player.getInventory().getItem(i).equals(equipment)){
-                continue;
-            }
-            rawItemSlot = i;
+            return damaged;
         }
 
         damagedEquipment.setDamage(0);
-        equipment.setItemMeta(damagedEquipment);
-
-        if (rawItemSlot == -1){
-            return;
-        }
+        damaged.setItemMeta(damagedEquipment);
 
         try{
             essPlayer.setMoney(playerBalance.subtract(cost));
-            player.getInventory().setItem(rawItemSlot, equipment);
         }
         catch (Exception ignored){}
+
+        damaged = main.itemUpdateUUID(damaged);
+        return damaged;
+    }
+
+    public void PlayerItemDamageEvent(PlayerItemDamageEvent event){
+        Bukkit.getScheduler().runTaskLater(main, () -> {
+            Player player = event.getPlayer();
+            ItemStack equipment = event.getItem();
+
+            if (ItemUtils.itemGetNbtPath(equipment,"CustomEnchantments") == null){
+                return;
+            }
+
+            if (!(((ArrayList)(ItemUtils.itemGetNbtPath(equipment,"CustomEnchantments"))).contains("moreenchantments:money_mending"))){
+                return;
+            }
+
+            int rawItemSlot = -1;
+
+            for (int i=0;i<player.getInventory().getSize();i++){
+                ItemStack that = player.getInventory().getItem(i);
+                if (that == null){
+                    continue;
+                }
+                if (!that.equals(equipment)){
+                    continue;
+                }
+                if (!main.itemSameUUID(that, equipment)){
+                    continue;
+                }
+                rawItemSlot = i;
+                break;
+            }
+
+            if (rawItemSlot == -1){
+                return;
+            }
+
+            ItemStack repaired = itemRepair(equipment.clone(), player, 0);
+            player.getInventory().setItem(rawItemSlot, repaired);
+        }, 0);
     }
 
     public void EntitySpawnEvent(EntitySpawnEvent event){
@@ -224,6 +238,27 @@ public class MoneyMendingEnchantment {
         }
         catch (Exception ignored){}
 
+
+    }
+
+    public void ProjectileLaunchEvent(ProjectileLaunchEvent event){
+        if (!(event.getEntity() instanceof Trident)){
+            return;
+        }
+
+        if (!(event.getEntity().getShooter() instanceof Player)){
+            return;
+        }
+
+        Trident trident = (Trident) event.getEntity();
+        Bukkit.getScheduler().runTaskLater(main, () -> {
+            ItemStack repaired = itemRepair(
+                    trident.getItem().clone(),
+                    ((Player)(event.getEntity().getShooter())),
+                    0
+            );
+            trident.setItem(repaired);
+        }, 0);
 
     }
 }
