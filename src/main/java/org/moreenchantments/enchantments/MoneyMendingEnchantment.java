@@ -5,6 +5,7 @@ import com.earth2me.essentials.User;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.Event;
@@ -72,6 +73,8 @@ public class MoneyMendingEnchantment {
         catch (Exception ignored){}
 
         damaged = main.itemUpdateUUID(damaged);
+
+        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS , 0.2F, 1.65F);
         return damaged;
     }
 
