@@ -70,11 +70,15 @@ public class MoneyMendingEnchantment {
         try{
             essPlayer.setMoney(playerBalance.subtract(cost));
         }
-        catch (Exception ignored){}
+        catch (Exception iegnored){}
+
+        if (cost.compareTo(BigDecimal.valueOf(0)) != 0){
+            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS , 0.2F, 1.65F);
+        }
 
         damaged = main.itemUpdateUUID(damaged);
 
-        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS , 0.2F, 1.65F);
+
         return damaged;
     }
 
