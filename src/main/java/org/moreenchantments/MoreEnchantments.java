@@ -6,15 +6,12 @@ import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.itemutils.ItemUtils;
 import org.apache.commons.io.FileUtils;
-import org.moreenchantments.books.MoneyMendingBook;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.yaml.snakeyaml.Yaml;
@@ -75,7 +72,7 @@ public final class MoreEnchantments extends JavaPlugin {
         boolean result = false;
         try{
             String enchName = "moreenchantments:"+enchantment.getDeclaredField("name").get(String.class);
-            ArrayList<String> enchantments = (ArrayList<String>) ItemUtils.itemGetNbtPath(item, "CustomEnchantments");
+            ArrayList<String> enchantments = ItemNBTUtils.getCustomEnchantments(item);
             enchantments.contains(enchName);
         }
         catch (Exception ignored){}
@@ -87,80 +84,59 @@ public final class MoreEnchantments extends JavaPlugin {
     }
 
     public boolean enchantmentBookContains(ItemStack item, Enchantment enchantment){
-//        System.out.println(item);
-//        System.out.println((EnchantmentStorageMeta)(item.getItemMeta()));
-//        System.out.println(((EnchantmentStorageMeta)(item.getItemMeta())).getStoredEnchants());
-//        System.out.println(((EnchantmentStorageMeta)(item.getItemMeta())).hasStoredEnchant(enchantment));
         return ((EnchantmentStorageMeta)(item.getItemMeta())).hasStoredEnchant(enchantment);
     }
 
     public void removeVirtualEnchantment(ItemStack item){
-        if (item.getItemMeta().hasItemFlag(ItemFlag.HIDE_ENCHANTS)){
-            ItemMeta itemMeta = item.getItemMeta();
-            itemMeta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
-            item.setItemMeta(itemMeta);
-        }
-        if (item.getEnchantments().get(Enchantment.OXYGEN) == null){
-            return;
-        }
-        if (item.getEnchantments().get(Enchantment.OXYGEN) == 0) {
-            ItemMeta itemMeta = item.getItemMeta();
-            itemMeta.removeEnchant(Enchantment.OXYGEN);
-            item.setItemMeta(itemMeta);
-        }
+        ItemMeta meta = item.getItemMeta();
+        assert meta != null;
+        if (meta.hasItemFlag(ItemFlag.HIDE_ENCHANTS)) meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+        item.setItemMeta(meta);
+
+        if (item.getType() == Material.TRIDENT) item.removeEnchantment(Enchantment.ARROW_INFINITE);
+        else item.removeEnchantment(Enchantment.LOYALTY);
     }
 
     public void addVirtualEnchantment(ItemStack item){
-        item.addUnsafeEnchantment(Enchantment.OXYGEN, 0);
-        ItemMeta itemMeta = item.getItemMeta();
-        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        item.setItemMeta(itemMeta);
+        if (item.getType() == Material.TRIDENT) item.addUnsafeEnchantment(Enchantment.ARROW_INFINITE, 1);
+        else item.addUnsafeEnchantment(Enchantment.LOYALTY, 1);
+        ItemMeta meta = item.getItemMeta();
+        assert meta != null;
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        item.setItemMeta(meta);
     }
 
     public boolean hasVanillaEnchantments(ItemStack item){
         ItemStack checkItem = item.clone();
         removeVirtualEnchantment(checkItem);
         Map<Enchantment, Integer> enchantments = checkItem.getEnchantments();
-        if (enchantments.isEmpty()){
-            return false;
-        }
-        return true;
+        return !enchantments.isEmpty();
     }
 
     public ItemStack itemUpdateUUID(ItemStack item){
-        item = ItemUtils.itemSetNbtPath(item, "UUID", UUID.randomUUID().toString());
-        return item;
+        return ItemNBTUtils.setUUID(item, UUID.randomUUID());
     }
 
     public boolean itemHasUUID(ItemStack item){
-        return ItemUtils.itemGetNbtPath(item, "UUID") != null;
+        return ItemNBTUtils.containsUUID(item);
     }
-
     public boolean itemSameUUID(ItemStack itemA, ItemStack itemB){
-        String UUIDA = ((String)(ItemUtils.itemGetNbtPath(itemA, "UUID")));
-        String UUIDB = ((String)(ItemUtils.itemGetNbtPath(itemB, "UUID")));
-        if (UUIDA == null && UUIDB == null){
-            return true;
-        }
-        if (UUIDA == null || UUIDB == null){
-            return false;
-        }
-        return ItemUtils.itemGetNbtPath(itemA, "UUID").equals(ItemUtils.itemGetNbtPath(itemB, "UUID"));
+        if (!itemHasUUID(itemA) && !itemHasUUID(itemB)) return true;
+        if (!itemHasUUID(itemA) || !itemHasUUID(itemB)) return false;
+
+        UUID A = ItemNBTUtils.getUUID(itemA);
+        UUID B = ItemNBTUtils.getUUID(itemB);
+
+        return A.equals(B);
     }
 
-    public ArrayList mergeCustomEnchantments(ArrayList ce1, ArrayList ce2){
-        if (ce1 == null){
-            ce1 = new ArrayList();
-        }
-        if (ce2 == null){
-            ce2 = new ArrayList();
-        }
-        ArrayList result = new ArrayList();
+    public ArrayList<String> mergeCustomEnchantments(ArrayList<String> ce1, ArrayList<String> ce2){
+        if (ce1 == null) ce1 = new ArrayList<>();
+        if (ce2 == null) ce2 = new ArrayList<>();
+        ArrayList<String> result = new ArrayList<>();
         result.addAll(ce1);
         result.addAll(ce2);
-        if (result.isEmpty()){
-            return null;
-        }
+        if (result.isEmpty()) return null;
         return result;
     }
 
@@ -218,7 +194,7 @@ public final class MoreEnchantments extends JavaPlugin {
                         throw new Exception("Required config '"+i+"' not found!");
                     }
                 }
-                constructedEnchantments.put("moreenchantments:"+((String) getStaticField("name", ench)), ench.getDeclaredConstructor().newInstance());
+                constructedEnchantments.put("moreenchantments:"+(getStaticField("name", ench)), ench.getDeclaredConstructor().newInstance());
 
             }
             catch (Exception exception){

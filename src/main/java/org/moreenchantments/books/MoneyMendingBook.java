@@ -2,16 +2,10 @@ package org.moreenchantments.books;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.event.inventory.PrepareAnvilEvent;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.itemutils.ItemUtils;
+import org.moreenchantments.ItemNBTUtils;
 import org.moreenchantments.MoreEnchantments;
-import org.moreenchantments.enchantments.MoneyMendingEnchantment;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class MoneyMendingBook {
@@ -21,7 +15,7 @@ public class MoneyMendingBook {
         ItemMeta itemMeta = result.getItemMeta();
         itemMeta.setLore(List.of(main.languageMapping.get("moreenchantments:money_mending")));
         result.setItemMeta(itemMeta);
-        result = ItemUtils.itemSetNbtPath(result, "CustomEnchantments", List.of("moreenchantments:money_mending"));
+        result = ItemNBTUtils.setCustomEnchantments(result, List.of("moreenchantments:money_mending"));
         return result;
     }
 }

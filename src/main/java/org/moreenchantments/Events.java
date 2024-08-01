@@ -17,7 +17,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.itemutils.ItemUtils;
 import org.moreenchantments.utils.ListUtils;
 
 import java.util.ArrayList;
@@ -68,9 +67,9 @@ public class Events implements Listener {
 
         ItemStack result = event.getResult();
 
-        ArrayList aCustomEnchantments = (ArrayList) (ItemUtils.itemGetNbtPath(aSlot, "CustomEnchantments"));
-        ArrayList bCustomEnchantments = (ArrayList) (ItemUtils.itemGetNbtPath(bSlot, "CustomEnchantments"));
-        ArrayList customEnchantments = main.mergeCustomEnchantments(aCustomEnchantments,bCustomEnchantments);
+        ArrayList<String> aCustomEnchantments = ItemNBTUtils.getCustomEnchantments(aSlot);
+        ArrayList<String> bCustomEnchantments = ItemNBTUtils.getCustomEnchantments(bSlot);
+        ArrayList<String> customEnchantments = main.mergeCustomEnchantments(aCustomEnchantments,bCustomEnchantments);
 
         boolean validEnchant = false;
 
@@ -104,7 +103,7 @@ public class Events implements Listener {
             result = aSlot.clone();
         }
 
-        result = ItemUtils.itemSetNbtPath(result, "CustomEnchantments", customEnchantments);
+        result = ItemNBTUtils.setCustomEnchantments(result, customEnchantments);
 
         int aRL = 0;
         int bRL = 0;
@@ -200,8 +199,8 @@ public class Events implements Listener {
         }
 
         if (event.getClickedInventory().getType() == InventoryType.GRINDSTONE && event.getSlotType() == InventoryType.SlotType.RESULT){
-            if (ItemUtils.itemGetNbtPath(event.getCurrentItem(), "CustomEnchantments") != null){
-                ItemStack result = ItemUtils.itemSetNbtPath(event.getCurrentItem(), "CustomEnchantments", new ArrayList<>());
+            if (ItemNBTUtils.containsCustomEnchantments(event.getCurrentItem())){
+                ItemStack result = ItemNBTUtils.setCustomEnchantments(event.getCurrentItem(), new ArrayList<>());
                 ItemMeta resultMeta = result.getItemMeta();
                 assert resultMeta != null;
                 resultMeta.setLore(new ArrayList<>());

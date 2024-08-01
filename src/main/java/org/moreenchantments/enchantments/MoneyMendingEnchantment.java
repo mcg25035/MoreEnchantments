@@ -11,28 +11,18 @@ import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.itemutils.ItemUtils;
+import org.moreenchantments.ItemNBTUtils;
 import org.moreenchantments.MoreEnchantments;
 import org.moreenchantments.books.MoneyMendingBook;
-
-
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Currency;
-import java.util.List;
-import java.util.Map;
 
 
 public class MoneyMendingEnchantment {
@@ -87,11 +77,11 @@ public class MoneyMendingEnchantment {
             Player player = event.getPlayer();
             ItemStack equipment = event.getItem();
 
-            if (ItemUtils.itemGetNbtPath(equipment,"CustomEnchantments") == null){
+            if (ItemNBTUtils.containsCustomEnchantments(equipment)){
                 return;
             }
 
-            if (!(((ArrayList)(ItemUtils.itemGetNbtPath(equipment,"CustomEnchantments"))).contains("moreenchantments:money_mending"))){
+            if (!ItemNBTUtils.containsCustomEnchantment(equipment, "moreenchantments:money_mending")){
                 return;
             }
 
@@ -159,7 +149,8 @@ public class MoneyMendingEnchantment {
         ItemMeta itemMeta = event.getResult().getItemMeta();
         itemMeta.setDisplayName(main.languageMapping.get("moreenchantments:money_mending.anvil.get"));
         event.getResult().setItemMeta(itemMeta);
-        ItemStack result = ItemUtils.itemSetNbtPath(event.getResult(), "money_mending_trade", true);
+//        ItemStack result = ItemUtils.itemSetNbtPath(event.getResult(), "money_mending_trade", true);
+        ItemStack result = ItemNBTUtils.setBoolean(event.getResult(), "money_mending_trade", true);
         event.setResult(result);
     }
 
@@ -179,7 +170,7 @@ public class MoneyMendingEnchantment {
         ItemStack currentItem = event.getCurrentItem();
         HumanEntity player = event.getWhoClicked();
 
-        if (ItemUtils.itemGetNbtPath(currentItem, "money_mending_trade") == null){
+        if (!ItemNBTUtils.getBoolean(currentItem, "money_mending_trade")) {
             return;
         }
 
