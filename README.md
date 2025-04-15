@@ -12,7 +12,7 @@ Current enchantments:
 > > 
 > > Required Plugins :
 > > > [Essentials](https://www.spigotmc.org/resources/essentialsx.9089/)
-> 1. Money Saturation
+> 2. Money Saturation
 > > Description :
 > > > Allow players repair their items with money.
 > >
