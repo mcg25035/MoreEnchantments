@@ -114,7 +114,7 @@ public class MoneySaturationEnchantment extends AbstractCustomEnchantment {
         ItemStack[] craftTable = event.getInventory().getMatrix();
         for (int i=0; i<craftTable.length; i++){
             if (i%2 == 0) continue;
-            if (craftTable[i] == null) continue;
+            if (craftTable[i] == null) return;
             if (!craftTable[i].getType().isEdible()) return;
         }
 
