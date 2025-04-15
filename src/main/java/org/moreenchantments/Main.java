@@ -6,6 +6,8 @@ import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.apache.commons.io.FileUtils;
+import org.moreenchantments.enchantments.AbstractCustomEnchantment;
+import org.moreenchantments.enchantments.MoneyMendingEnchantment;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.yaml.snakeyaml.Yaml;
@@ -63,7 +65,7 @@ public final class Main extends JavaPlugin {
     }
 
 
-    public HashMap<String, Object> constructedEnchantments = new HashMap<>();
+    public HashMap<String, AbstractCustomEnchantment> constructedEnchantments = new HashMap<>();
     public HashMap<String, List<Consumer<Object[]>>> eventsFunctionMapping = new HashMap<>();
     public HashMap<String, Class<?>[]> argumentTypeMapping = new HashMap<>();
     public HashMap<String, String> languageMapping = new HashMap<>();
@@ -97,16 +99,16 @@ public final class Main extends JavaPlugin {
             }
         } catch (Exception ignored) {}
 
-        Reflections reflections = new Reflections("org.moreenchantments.enchantments" ,new SubTypesScanner(false));
-        Set<Class<?>> enchantments = reflections.getSubTypesOf(Object.class);
-        enchantments.addAll(reflections.getSubTypesOf(Object.class));
+        AbstractCustomEnchantment.registerCustomEnchantment(MoneyMendingEnchantment.class);
+
+        Set<Class<? extends AbstractCustomEnchantment>> enchantments = AbstractCustomEnchantment.customEnchantments;
         for (Class<?> ench : enchantments){
             String enchantmentName = ench.getName();
             try{
                 Bukkit.getLogger().info("Loading enchantment - "+pathToName(enchantmentName));
-                Object constructedEnchantment = ench.getDeclaredConstructor().newInstance();
-                String[] requiredPlugins = (String[]) (getFieldFromInstance("requiredPlugins", constructedEnchantment));
-                String[] requiredConfigs = (String[]) (getFieldFromInstance("requiredConfigs", constructedEnchantment));
+                AbstractCustomEnchantment constructedEnchantment = (AbstractCustomEnchantment) ench.getDeclaredConstructor().newInstance();
+                String[] requiredPlugins = constructedEnchantment.requiredPlugins;
+                String[] requiredConfigs = constructedEnchantment.requiredConfigs;
                 for (String i : requiredPlugins){
                     if (Bukkit.getPluginManager().getPlugin(i) == null){
                         throw new Exception("Required plugin '"+i+"' not found!");
@@ -117,37 +119,11 @@ public final class Main extends JavaPlugin {
                         throw new Exception("Required config '"+i+"' not found!");
                     }
                 }
-                constructedEnchantments.put("moreenchantments:"+(getStaticField("name", ench)), ench.getDeclaredConstructor().newInstance());
-
+                constructedEnchantments.put("moreenchantments:"+constructedEnchantment.name, constructedEnchantment);
             }
             catch (Exception exception){
                 Bukkit.getLogger().warning("Error while loading enchantment - "+pathToName(enchantmentName));
                 exception.printStackTrace();
-            }
-        }
-
-        Method[] events = Events.class.getMethods();
-        for (Method i : events){
-            String eventName = pathToName(i.getName());
-            if (!eventName.contains("Event")){
-                continue;
-            }
-            eventsFunctionMapping.put(eventName, new ArrayList<>());
-            argumentTypeMapping.put(eventName, i.getParameterTypes());
-        }
-
-        for (Object i : constructedEnchantments.values()){
-            for (String ii : eventsFunctionMapping.keySet()){
-                eventsFunctionMapping.get(ii).add(
-                    (args)->{
-                        try{
-                            i.getClass().getMethod(ii,argumentTypeMapping.get(ii)).invoke(i,args);
-                        }
-                        catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-                );
             }
         }
 

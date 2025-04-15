@@ -9,6 +9,7 @@ import org.bukkit.SoundCategory;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -27,21 +28,24 @@ import org.moreenchantments.utils.UUIDUtils;
 
 import java.math.BigDecimal;
 
+public class MoneyMendingEnchantment extends AbstractCustomEnchantment {
 
-public class MoneyMendingEnchantment {
-    public static String name = "money_mending";
-    public Enchantment[] notCompatibleVanilla = {Enchantment.MENDING, Enchantment.ARROW_INFINITE};
-    public String[] notCompatibleCustom = {""};
-    public String[] requiredPlugins = {"Essentials"};
-    public String[] requiredConfigs = {"costPerDurability"};
-    public MoneyMendingBook book = new MoneyMendingBook();
+    public MoneyMendingEnchantment() {
+        super(
+                "money_mending",
+                new String[]{""},
+                new Enchantment[]{Enchantment.MENDING, Enchantment.ARROW_INFINITE},
+                new String[]{"Essentials"},
+                new String[]{"costPerDurability"}
+        );
+        Bukkit.getPluginManager().registerEvents(this, main);
+    }
 
-    public Main main = Main.getThis();
-    private ItemStack itemRepair(ItemStack damaged, Player player, int newDamage){
+    private ItemStack itemRepair(ItemStack damaged, Player player, int newDamage) {
         Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
         User essPlayer = ess.getUser(player);
         Damageable damagedEquipment = (Damageable) damaged.getItemMeta();
-        BigDecimal damage = BigDecimal.valueOf(damagedEquipment.getDamage()+newDamage);
+        BigDecimal damage = BigDecimal.valueOf(damagedEquipment.getDamage() + newDamage);
         double costPerDurability = 1.0;
         try{
             costPerDurability = (Double)(main.config.get("costPerDurability"));
@@ -75,18 +79,14 @@ public class MoneyMendingEnchantment {
         return damaged;
     }
 
+    @EventHandler
     public void PlayerItemDamageEvent(PlayerItemDamageEvent event){
         Bukkit.getScheduler().runTaskLater(main, () -> {
             Player player = event.getPlayer();
             ItemStack equipment = event.getItem();
 
-            if (ItemNBTUtils.containsCustomEnchantments(equipment)){
-                return;
-            }
-
-            if (!ItemNBTUtils.containsCustomEnchantment(equipment, "moreenchantments:money_mending")){
-                return;
-            }
+            if (!ItemNBTUtils.containsCustomEnchantments(equipment)) return;
+            if (!ItemNBTUtils.containsCustomEnchantment(equipment, "moreenchantments:money_mending")) return;
 
             int rawItemSlot = -1;
 
@@ -114,6 +114,7 @@ public class MoneyMendingEnchantment {
         }, 0);
     }
 
+    @EventHandler
     public void EntitySpawnEvent(EntitySpawnEvent event){
         if (!event.getEntityType().equals(EntityType.WANDERING_TRADER)){
             return;
@@ -128,21 +129,21 @@ public class MoneyMendingEnchantment {
         wanderingLeash.setRecipe(wanderingLeash.getRecipes().size()-1,merchant);
     }
 
+    @EventHandler
     public void PrepareAnvilEvent(PrepareAnvilEvent event){
         if (event.getInventory().getItem(0) == null){
             return;
         }
 
-        if (event.getInventory().getItem(1) != null){
-            return;
-        }
-
-
-        if (!EnchantmentUtils.isEnchantmentBook(event.getInventory().getItem(0))){
+        if (!event.getInventory().getItem(0).getType().equals(Material.ENCHANTED_BOOK)){
             return;
         }
 
         if (!EnchantmentUtils.enchantmentBookContains(event.getInventory().getItem(0), Enchantment.MENDING)){
+            return;
+        }
+
+        if (event.getInventory().getItem(1) != null){
             return;
         }
 
@@ -157,6 +158,7 @@ public class MoneyMendingEnchantment {
         event.setResult(result);
     }
 
+    @EventHandler
     public void InventoryClickEvent(InventoryClickEvent event){
         if (!event.getSlotType().equals(InventoryType.SlotType.RESULT)){
             return;
@@ -204,6 +206,7 @@ public class MoneyMendingEnchantment {
 
     }
 
+    @EventHandler
     public void InventoryInteractEvent(InventoryClickEvent event){
         HumanEntity player = event.getWhoClicked();
         Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
@@ -212,8 +215,11 @@ public class MoneyMendingEnchantment {
 
         ItemStack currentItem = event.getCurrentItem();
         if (currentItem == null) return;
+        if (!ItemNBTUtils.containsCustomEnchantments(currentItem)) return;
+        if (!ItemNBTUtils.containsCustomEnchantment(currentItem, "moreenchantments:money_mending")) return;
         if (!currentItem.getType().equals(Material.ELYTRA)) return;
         if (((Damageable)(currentItem.getItemMeta())).getDamage() != 431) return;
+
 
         double costPerDurability = 1.0;
         try{
@@ -242,6 +248,7 @@ public class MoneyMendingEnchantment {
 
     }
 
+    @EventHandler
     public void ProjectileLaunchEvent(ProjectileLaunchEvent event){
         if (!(event.getEntity() instanceof Trident)){
             return;
@@ -253,8 +260,11 @@ public class MoneyMendingEnchantment {
 
         Trident trident = (Trident) event.getEntity();
         Bukkit.getScheduler().runTaskLater(main, () -> {
+            ItemStack currentItem = trident.getItem().clone();
+            if (!ItemNBTUtils.containsCustomEnchantments(currentItem)) return;
+            if (!ItemNBTUtils.containsCustomEnchantment(currentItem, "moreenchantments:money_mending")) return;
             ItemStack repaired = itemRepair(
-                    trident.getItem().clone(),
+                    currentItem,
                     ((Player)(event.getEntity().getShooter())),
                     0
             );

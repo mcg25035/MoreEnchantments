@@ -88,8 +88,8 @@ public class EnchantmentUtils {
         Main main = Main.getThis();
 
         try {
-            for (Object i : customEnchantments) {
-                Enchantment[] notCompatibleVanilla = ((Enchantment[]) (main.getFieldFromInstance("notCompatibleVanilla", main.constructedEnchantments.get((String) i))));
+            for (String i : customEnchantments) {
+                Enchantment[] notCompatibleVanilla = main.constructedEnchantments.get(i).notCompatibleVanilla;
                 if (notCompatibleVanilla != null) {
                     for (Enchantment ii : notCompatibleVanilla) {
                         boolean containEnchantedBook;
@@ -105,7 +105,7 @@ public class EnchantmentUtils {
                     }
                 }
 
-                String[] notCompatibleCustom = ((String[]) (main.getFieldFromInstance("notCompatibleCustom", main.constructedEnchantments.get((String) i))));
+                String[] notCompatibleCustom = main.constructedEnchantments.get(i).notCompatibleCustom;
                 if (notCompatibleCustom != null) {
                     for (String ii : notCompatibleCustom) {
                         if (customEnchantments.contains(ii)) {

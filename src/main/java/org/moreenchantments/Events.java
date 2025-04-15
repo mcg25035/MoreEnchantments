@@ -8,10 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntitySpawnEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.*;
-import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -21,37 +18,12 @@ import org.moreenchantments.utils.ListUtils;
 import org.moreenchantments.utils.UUIDUtils;
 
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 public class Events implements Listener {
-    Main main = Main.getThis();
-    public void eventPass(String eventName, Object ... args){
-        for (String i : main.eventsFunctionMapping.keySet()){
-            if (i.equals(eventName)){
-                for (Consumer<Object[]> ii : main.eventsFunctionMapping.get(i)){
-                    ii.accept(args);
-                }
-            }
-        }
-    }
 
-    @EventHandler
-    public void PlayerItemDamageEvent(PlayerItemDamageEvent event){
-        String eventName = new Object(){}.getClass().getEnclosingMethod().getName();
-        eventPass(eventName, event);
-    }
-
-    @EventHandler
-    public void EntitySpawnEvent(EntitySpawnEvent event){
-        String eventName = new Object(){}.getClass().getEnclosingMethod().getName();
-        eventPass(eventName, event);
-    }
 
     @EventHandler
     public void PrepareAnvilEvent(PrepareAnvilEvent event){
-        String eventName = new Object(){}.getClass().getEnclosingMethod().getName();
-        eventPass(eventName, event);
-
         ItemStack aSlot = event.getInventory().getItem(0);
         ItemStack bSlot = event.getInventory().getItem(1);
 
@@ -120,16 +92,11 @@ public class Events implements Listener {
             }
         }
 
-        String eventName = new Object(){}.getClass().getEnclosingMethod().getName();
-        eventPass(eventName, event);
-
         Inventory inventory = event.getInventory();
         HumanEntity player = event.getWhoClicked();
         if (!(inventory instanceof AnvilInventory)){
             return;
         }
-
-
 
         if (((AnvilInventory) inventory).getRepairCost() > ((Player)player).getLevel()){
             return;
@@ -166,16 +133,4 @@ public class Events implements Listener {
         inventoryLocation.getWorld().playSound(inventoryLocation, Sound.BLOCK_ANVIL_USE, (float) 1, (float) (1.035-Math.random()*0.15));
     }
 
-    @EventHandler
-    public void InventoryInteractEvent(InventoryClickEvent event){
-        String eventName = new Object(){}.getClass().getEnclosingMethod().getName();
-        eventPass(eventName, event);
-
-    }
-
-    @EventHandler
-    public void ProjectileLaunchEvent(ProjectileLaunchEvent event){
-        String eventName = new Object(){}.getClass().getEnclosingMethod().getName();
-        eventPass(eventName, event);
-    }
 }

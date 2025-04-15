@@ -1,6 +1,9 @@
 {
   "moreenchantments.money_not_enough": "§eYour money does not enough to buy it.",
   "moreenchantments:money_mending": "§7Money Mending",
+  "moreenchantments:money_saturation": "§7Money Saturation",
   "moreenchantments:money_mending.anvil.get": "§e[§fClick§e] §cBuy the book with price §f500§c$!",
-  "moreenchantments:money_mending.anvil.got": "§eYou buy a MoneyMending enchanted book for §f$§c500."
+  "moreenchantments:money_saturation.anvil.get": "§e[§fClick§e] §cBuy the book with price §f500§c$!",
+  "moreenchantments:money_mending.anvil.got": "§eYou buy a MoneyMending enchanted book for §f$§c500.",
+  "moreenchantments:money_saturation.anvil.got": "§eYou buy a MoneySaturation enchanted book for §f$§c500."
 }
