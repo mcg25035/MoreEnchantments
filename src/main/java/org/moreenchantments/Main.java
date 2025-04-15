@@ -4,12 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.apache.commons.io.FileUtils;
 import org.reflections.Reflections;
@@ -26,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
 
-public final class MoreEnchantments extends JavaPlugin {
+public final class Main extends JavaPlugin {
     public File pluginDir = getDataFolder();
     public void checkPluginFile() throws IOException {
 
@@ -51,8 +45,8 @@ public final class MoreEnchantments extends JavaPlugin {
         }
     }
 
-    public static MoreEnchantments getThis(){
-        return (MoreEnchantments)(Bukkit.getPluginManager().getPlugin("MoreEnchantments"));
+    public static Main getThis(){
+        return (Main)(Bukkit.getPluginManager().getPlugin("MoreEnchantments"));
     }
 
     public String pathToName(String path){
@@ -68,77 +62,6 @@ public final class MoreEnchantments extends JavaPlugin {
         return clazz.getDeclaredField(fieldName).get(clazz);
     }
 
-    public boolean hasCustomEnchantment(ItemStack item, Class<?> enchantment){
-        boolean result = false;
-        try{
-            String enchName = "moreenchantments:"+enchantment.getDeclaredField("name").get(String.class);
-            ArrayList<String> enchantments = ItemNBTUtils.getCustomEnchantments(item);
-            enchantments.contains(enchName);
-        }
-        catch (Exception ignored){}
-        return result;
-    }
-
-    public boolean isEnchantmentBook(ItemStack item){
-        return item.getType().equals(Material.ENCHANTED_BOOK);
-    }
-
-    public boolean enchantmentBookContains(ItemStack item, Enchantment enchantment){
-        return ((EnchantmentStorageMeta)(item.getItemMeta())).hasStoredEnchant(enchantment);
-    }
-
-    public void removeVirtualEnchantment(ItemStack item){
-        ItemMeta meta = item.getItemMeta();
-        assert meta != null;
-        if (meta.hasItemFlag(ItemFlag.HIDE_ENCHANTS)) meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
-        item.setItemMeta(meta);
-
-        if (item.getType() == Material.TRIDENT) item.removeEnchantment(Enchantment.ARROW_INFINITE);
-        else item.removeEnchantment(Enchantment.LOYALTY);
-    }
-
-    public void addVirtualEnchantment(ItemStack item){
-        if (item.getType() == Material.TRIDENT) item.addUnsafeEnchantment(Enchantment.ARROW_INFINITE, 1);
-        else item.addUnsafeEnchantment(Enchantment.LOYALTY, 1);
-        ItemMeta meta = item.getItemMeta();
-        assert meta != null;
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        item.setItemMeta(meta);
-    }
-
-    public boolean hasVanillaEnchantments(ItemStack item){
-        ItemStack checkItem = item.clone();
-        removeVirtualEnchantment(checkItem);
-        Map<Enchantment, Integer> enchantments = checkItem.getEnchantments();
-        return !enchantments.isEmpty();
-    }
-
-    public ItemStack itemUpdateUUID(ItemStack item){
-        return ItemNBTUtils.setUUID(item, UUID.randomUUID());
-    }
-
-    public boolean itemHasUUID(ItemStack item){
-        return ItemNBTUtils.containsUUID(item);
-    }
-    public boolean itemSameUUID(ItemStack itemA, ItemStack itemB){
-        if (!itemHasUUID(itemA) && !itemHasUUID(itemB)) return true;
-        if (!itemHasUUID(itemA) || !itemHasUUID(itemB)) return false;
-
-        UUID A = ItemNBTUtils.getUUID(itemA);
-        UUID B = ItemNBTUtils.getUUID(itemB);
-
-        return A.equals(B);
-    }
-
-    public ArrayList<String> mergeCustomEnchantments(ArrayList<String> ce1, ArrayList<String> ce2){
-        if (ce1 == null) ce1 = new ArrayList<>();
-        if (ce2 == null) ce2 = new ArrayList<>();
-        ArrayList<String> result = new ArrayList<>();
-        result.addAll(ce1);
-        result.addAll(ce2);
-        if (result.isEmpty()) return null;
-        return result;
-    }
 
     public HashMap<String, Object> constructedEnchantments = new HashMap<>();
     public HashMap<String, List<Consumer<Object[]>>> eventsFunctionMapping = new HashMap<>();

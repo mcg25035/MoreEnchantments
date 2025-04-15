@@ -20,8 +20,11 @@ import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.moreenchantments.ItemNBTUtils;
-import org.moreenchantments.MoreEnchantments;
+import org.moreenchantments.Main;
 import org.moreenchantments.books.MoneyMendingBook;
+import org.moreenchantments.utils.EnchantmentUtils;
+import org.moreenchantments.utils.UUIDUtils;
+
 import java.math.BigDecimal;
 
 
@@ -33,7 +36,7 @@ public class MoneyMendingEnchantment {
     public String[] requiredConfigs = {"costPerDurability"};
     public MoneyMendingBook book = new MoneyMendingBook();
 
-    public MoreEnchantments main = MoreEnchantments.getThis();
+    public Main main = Main.getThis();
     private ItemStack itemRepair(ItemStack damaged, Player player, int newDamage){
         Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
         User essPlayer = ess.getUser(player);
@@ -66,7 +69,7 @@ public class MoneyMendingEnchantment {
             player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS , 0.2F, 1.65F);
         }
 
-        damaged = main.itemUpdateUUID(damaged);
+        damaged = UUIDUtils.itemUpdateUUID(damaged);
 
 
         return damaged;
@@ -95,7 +98,7 @@ public class MoneyMendingEnchantment {
                 if (!that.equals(equipment)){
                     continue;
                 }
-                if (!main.itemSameUUID(that, equipment)){
+                if (!UUIDUtils.itemSameUUID(that, equipment)){
                     continue;
                 }
                 rawItemSlot = i;
@@ -135,11 +138,11 @@ public class MoneyMendingEnchantment {
         }
 
 
-        if (!main.isEnchantmentBook(event.getInventory().getItem(0))){
+        if (!EnchantmentUtils.isEnchantmentBook(event.getInventory().getItem(0))){
             return;
         }
 
-        if (!main.enchantmentBookContains(event.getInventory().getItem(0), Enchantment.MENDING)){
+        if (!EnchantmentUtils.enchantmentBookContains(event.getInventory().getItem(0), Enchantment.MENDING)){
             return;
         }
 
