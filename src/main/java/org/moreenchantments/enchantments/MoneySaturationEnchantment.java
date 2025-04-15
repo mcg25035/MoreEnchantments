@@ -39,7 +39,7 @@ public class MoneySaturationEnchantment extends AbstractCustomEnchantment {
         super(
                 "money_saturation",
                 new String[]{""},
-                new Enchantment[]{Enchantment.MENDING, Enchantment.ARROW_INFINITE},
+                new Enchantment[]{},
                 new String[]{"Essentials"},
                 new String[]{"costPerFood"}
         );
