@@ -27,6 +27,8 @@ import org.moreenchantments.utils.EnchantmentUtils;
 import org.moreenchantments.utils.UUIDUtils;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MoneyMendingEnchantment extends AbstractCustomEnchantment {
 
@@ -126,7 +128,10 @@ public class MoneyMendingEnchantment extends AbstractCustomEnchantment {
         merchant.addIngredient(new ItemStack(Material.EMERALD, (int) (27+Math.round(Math.random()*10))));
         merchant.addIngredient(new ItemStack(Material.BOOK,1));
 
-        wanderingLeash.setRecipe(wanderingLeash.getRecipes().size()-1,merchant);
+        List<MerchantRecipe> recipes = new ArrayList<>(wanderingLeash.getRecipes());
+        recipes.add(merchant);
+
+        wanderingLeash.setRecipes(recipes);
     }
 
     @EventHandler
@@ -215,9 +220,9 @@ public class MoneyMendingEnchantment extends AbstractCustomEnchantment {
 
         ItemStack currentItem = event.getCurrentItem();
         if (currentItem == null) return;
+        if (!currentItem.getType().equals(Material.ELYTRA)) return;
         if (!ItemNBTUtils.containsCustomEnchantments(currentItem)) return;
         if (!ItemNBTUtils.containsCustomEnchantment(currentItem, "moreenchantments:money_mending")) return;
-        if (!currentItem.getType().equals(Material.ELYTRA)) return;
         if (((Damageable)(currentItem.getItemMeta())).getDamage() != 431) return;
 
 

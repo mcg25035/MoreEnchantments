@@ -12,14 +12,19 @@ import java.util.UUID;
 
 public class ItemNBTUtils {
     public static boolean containsCustomEnchantments(ItemStack item) {
-        ReadableNBT nbt = NBT.itemStackToNBT(item);
-        if (!nbt.hasTag("components")) return false;
-        ReadableNBT components = nbt.getCompound("components");
-        assert components != null;
-        if (!components.hasTag("minecraft:custom_data")) return false;
-        ReadableNBT customData = components.getCompound("minecraft:custom_data");
-        assert customData != null;
-        return customData.hasTag("CustomEnchantments");
+        try{
+            ReadableNBT nbt = NBT.itemStackToNBT(item);
+            if (!nbt.hasTag("components")) return false;
+            ReadableNBT components = nbt.getCompound("components");
+            assert components != null;
+            if (!components.hasTag("minecraft:custom_data")) return false;
+            ReadableNBT customData = components.getCompound("minecraft:custom_data");
+            assert customData != null;
+            return customData.hasTag("CustomEnchantments");
+        }
+        catch (Exception e){
+            return false;
+        }
     }
 
     public static ArrayList<String> getCustomEnchantments(ItemStack item) {

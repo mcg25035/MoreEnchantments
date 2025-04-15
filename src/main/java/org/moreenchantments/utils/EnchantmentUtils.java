@@ -1,5 +1,6 @@
 package org.moreenchantments.utils;
 
+import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
@@ -23,7 +24,9 @@ public class EnchantmentUtils {
             ArrayList<String> enchantments = ItemNBTUtils.getCustomEnchantments(item);
             enchantments.contains(enchName);
         }
-        catch (Exception ignored){}
+        catch (Exception ignored){
+            ignored.printStackTrace();
+        }
         return result;
     }
 

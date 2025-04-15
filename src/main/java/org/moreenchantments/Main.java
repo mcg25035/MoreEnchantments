@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.apache.commons.io.FileUtils;
 import org.moreenchantments.enchantments.AbstractCustomEnchantment;
 import org.moreenchantments.enchantments.MoneyMendingEnchantment;
+import org.moreenchantments.enchantments.MoneySaturationEnchantment;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.yaml.snakeyaml.Yaml;
@@ -100,6 +101,7 @@ public final class Main extends JavaPlugin {
         } catch (Exception ignored) {}
 
         AbstractCustomEnchantment.registerCustomEnchantment(MoneyMendingEnchantment.class);
+        AbstractCustomEnchantment.registerCustomEnchantment(MoneySaturationEnchantment.class);
 
         Set<Class<? extends AbstractCustomEnchantment>> enchantments = AbstractCustomEnchantment.customEnchantments;
         for (Class<?> ench : enchantments){
