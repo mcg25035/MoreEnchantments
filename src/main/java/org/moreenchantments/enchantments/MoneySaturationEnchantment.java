@@ -71,7 +71,7 @@ public class MoneySaturationEnchantment extends AbstractCustomEnchantment {
             try{
                 costPerFood = (Double)(main.config.get("costPerFood"));
             }
-            catch (Exception ignoredhasCustomEnchantment){
+            catch (Exception ignored){
                 costPerFood = (Integer)(main.config.get("costPerFood"));
             }
             double cost = foodDifference * costPerFood;
