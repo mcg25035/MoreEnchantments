@@ -1,6 +1,0 @@
-name: MoreEnchantments
-version: '1.6-SNAPSHOT'
-main: org.moreenchantments.MoreEnchantments
-api-version: '1.20'
-depend: [NBTAPI]
-softdepend: [Essentials]
