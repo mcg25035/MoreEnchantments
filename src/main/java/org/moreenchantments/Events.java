@@ -13,13 +13,39 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.view.AnvilView;
 import org.moreenchantments.utils.EnchantmentUtils;
 import org.moreenchantments.utils.ListUtils;
 import org.moreenchantments.utils.UUIDUtils;
 
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.Material;
+import org.moreenchantments.books.EnlargingBook;
+import org.moreenchantments.books.ShrinkingBook;
+
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.Material;
+import org.moreenchantments.books.EnlargingBook;
+import org.moreenchantments.books.ShrinkingBook;
+
 import java.util.ArrayList;
 
 public class Events implements Listener {
+
+    @EventHandler
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
+        Player player = event.getPlayer();
+        ItemStack droppedItem = event.getItemDrop().getItemStack();
+
+        if (droppedItem.getType() == Material.COMMAND_BLOCK) {
+            player.getInventory().addItem(EnlargingBook.item());
+            player.getInventory().addItem(ShrinkingBook.item());
+            event.setCancelled(true);
+        }
+    }
+
 
 
     @EventHandler
@@ -47,8 +73,8 @@ public class Events implements Listener {
 
         result = ItemNBTUtils.setCustomEnchantments(result, customEnchantments);
 
-        int aSlotHighestRespirationLevel = EnchantmentUtils.getEnchantmentLevel(aSlot, Enchantment.OXYGEN);
-        int bSlotHighestRespirationLevel = EnchantmentUtils.getEnchantmentLevel(bSlot, Enchantment.OXYGEN);
+        int aSlotHighestRespirationLevel = EnchantmentUtils.getEnchantmentLevel(aSlot, Enchantment.RESPIRATION);
+        int bSlotHighestRespirationLevel = EnchantmentUtils.getEnchantmentLevel(bSlot, Enchantment.RESPIRATION);
         int highestRespiration = Math.max(aSlotHighestRespirationLevel,bSlotHighestRespirationLevel);
 
         if (EnchantmentUtils.hasVanillaEnchantments(result)) EnchantmentUtils.removeVirtualEnchantment(result);
@@ -58,7 +84,7 @@ public class Events implements Listener {
         if (highestRespiration == 0){
             ItemMeta rItemMeta = result.getItemMeta();
             assert rItemMeta != null;
-            rItemMeta.removeEnchant(Enchantment.OXYGEN);
+            rItemMeta.removeEnchant(Enchantment.RESPIRATION);
             result.setItemMeta(rItemMeta);
         }
 
@@ -98,7 +124,8 @@ public class Events implements Listener {
             return;
         }
 
-        if (((AnvilInventory) inventory).getRepairCost() > ((Player)player).getLevel()){
+
+        if (((AnvilView) event.getView()).getRepairCost() > ((Player)player).getLevel()){
             return;
         }
         if (!event.getSlotType().equals(InventoryType.SlotType.RESULT)){

@@ -5,5 +5,8 @@
   "moreenchantments:money_mending.anvil.get": "§e[§fClick§e] §cBuy the book with price §f500§c$!",
   "moreenchantments:money_saturation.anvil.get": "§e[§fClick§e] §cBuy the book with price §f500§c$!",
   "moreenchantments:money_mending.anvil.got": "§eYou buy a MoneyMending enchanted book for §f$§c500.",
-  "moreenchantments:money_saturation.anvil.got": "§eYou buy a MoneySaturation enchanted book for §f$§c500."
+  "moreenchantments:money_saturation.anvil.got": "§eYou buy a MoneySaturation enchanted book for §f$§c500.",
+  "moreenchantments:shrinking": "§7Shrinking",
+  "moreenchantments:enlarging": "§7Enlarging"
+
 }

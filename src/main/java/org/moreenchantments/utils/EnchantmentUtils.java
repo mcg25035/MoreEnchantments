@@ -44,12 +44,12 @@ public class EnchantmentUtils {
         if (meta.hasItemFlag(ItemFlag.HIDE_ENCHANTS)) meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
         item.setItemMeta(meta);
 
-        if (item.getType() == Material.TRIDENT) item.removeEnchantment(Enchantment.ARROW_INFINITE);
+        if (item.getType() == Material.TRIDENT) item.removeEnchantment(Enchantment.INFINITY);
         else item.removeEnchantment(Enchantment.LOYALTY);
     }
 
     public static void addVirtualEnchantment(ItemStack item){
-        if (item.getType() == Material.TRIDENT) item.addUnsafeEnchantment(Enchantment.ARROW_INFINITE, 1);
+        if (item.getType() == Material.TRIDENT) item.addUnsafeEnchantment(Enchantment.INFINITY, 1);
         else item.addUnsafeEnchantment(Enchantment.LOYALTY, 1);
         ItemMeta meta = item.getItemMeta();
         assert meta != null;

@@ -6,9 +6,7 @@ import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.apache.commons.io.FileUtils;
-import org.moreenchantments.enchantments.AbstractCustomEnchantment;
-import org.moreenchantments.enchantments.MoneyMendingEnchantment;
-import org.moreenchantments.enchantments.MoneySaturationEnchantment;
+import org.moreenchantments.enchantments.*;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.yaml.snakeyaml.Yaml;
@@ -102,6 +100,8 @@ public final class Main extends JavaPlugin {
 
         AbstractCustomEnchantment.registerCustomEnchantment(MoneyMendingEnchantment.class);
         AbstractCustomEnchantment.registerCustomEnchantment(MoneySaturationEnchantment.class);
+        AbstractCustomEnchantment.registerCustomEnchantment(EnlargingEnchantment.class);
+        AbstractCustomEnchantment.registerCustomEnchantment(ShrinkingEnchantment.class);
 
         Set<Class<? extends AbstractCustomEnchantment>> enchantments = AbstractCustomEnchantment.customEnchantments;
         for (Class<?> ench : enchantments){

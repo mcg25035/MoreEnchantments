@@ -5,5 +5,7 @@
   "moreenchantments:money_mending.anvil.got": "§e您花了 §c500§f元 §e購買了一本金錢修補",
   "moreenchantments:money_saturation": "§7金錢飽食",
   "moreenchantments:money_saturation.anvil.get": "§e[§f點擊§e] §c以 §f500 §c元遊戲幣購買!",
-  "moreenchantments:money_saturation.anvil.got": "§e您花了 §c500§f元 §e購買了一本金錢飽食"
+  "moreenchantments:money_saturation.anvil.got": "§e您花了 §c500§f元 §e購買了一本金錢飽食",
+  "moreenchantments:shrinking": "§7縮小",
+  "moreenchantments:enlarging": "§7放大"
 }

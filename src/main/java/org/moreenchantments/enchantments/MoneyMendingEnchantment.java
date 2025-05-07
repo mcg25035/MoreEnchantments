@@ -36,7 +36,7 @@ public class MoneyMendingEnchantment extends AbstractCustomEnchantment {
         super(
                 "money_mending",
                 new String[]{""},
-                new Enchantment[]{Enchantment.MENDING, Enchantment.ARROW_INFINITE},
+                new Enchantment[]{Enchantment.MENDING, Enchantment.INFINITY},
                 new String[]{"Essentials"},
                 new String[]{"costPerDurability"}
         );
@@ -208,6 +208,7 @@ public class MoneyMendingEnchantment extends AbstractCustomEnchantment {
         player.getInventory().addItem(returnItem);
         event.setCurrentItem(new ItemStack(Material.AIR));
         event.setResult(Event.Result.DENY);
+
 
     }
 
