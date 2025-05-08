@@ -2,4 +2,4 @@ costPerDurability: 1
 costPerFood: 1
 lang: en
 shrinking_scale: 0.5
-enlargement_scale: 1.5
+enlarging_scale: 1.5

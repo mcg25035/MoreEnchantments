@@ -90,7 +90,7 @@ public class MoneySaturationEnchantment extends AbstractCustomEnchantment {
             }
             catch (Exception ignored){}
             player.setFoodLevel(20);
-            player.getLocation().getWorld().playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1, 0);
+            player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1, 0);
         }, 0);
     }
 
